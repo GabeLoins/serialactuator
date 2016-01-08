@@ -3,7 +3,6 @@ require 'green_shoes'
 Process.spawn "screen -X -S usbserial kill"
 Process.spawn "screen -S usbserial /dev/ttyUSB0 9600"
 Process.spawn "screen -S usbserial -X stuff '\n'"
-# pid = `screen -list | grep usbserial | cut -f1 -d'.' | sed 's/\W//g' | sed 's/[[:space:]]//g'`
 
 at_exit do
   Process.spawn "screen -X -S usbserial kill\n"
