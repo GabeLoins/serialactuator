@@ -1,25 +1,8 @@
 require 'green_shoes'
 
-=begin
-port_str = "/dev/cu.usbserial"
-baud_rate = 9600
-data_bits = 8
-stop_bits = 1
-parity = SerialPort::NONE
-
-puts "here"
-sp = SerialPort.new(port_str, baud_rate, data_bits, stop_bits, parity)
-puts sp
-spp = open(sp)
-puts "there"
-out = sp.write('AC1 VE20 DI100 GO')
-puts out
-puts "done"
-=end
-
 Process.spawn "screen -X -S usbserial kill"
-Process.spawn "screen -S usbserial /dev/cu.usbserial 9600"
-Process.spawn "screen -S usbserial -X stuff $'\n'"
+Process.spawn "screen -S usbserial /dev/ttyUSB0 9600"
+Process.spawn "screen -S usbserial -X stuff '\n'"
 # pid = `screen -list | grep usbserial | cut -f1 -d'.' | sed 's/\W//g' | sed 's/[[:space:]]//g'`
 
 at_exit do
@@ -32,7 +15,7 @@ Shoes.app(width: 850) do
   @texts = []
 
   def move(acc, ve, pos) 
-    Process.spawn "screen -S usbserial -X stuff $'AC#{acc} VE#{ve} DA#{pos} GO\n'" 
+    Process.spawn "screen -S usbserial -X stuff 'AC#{acc} VE#{ve} DA#{pos} GO\n'" 
   end 
 
   def new_row()
@@ -44,7 +27,7 @@ Shoes.app(width: 850) do
     @batch.append do
       flow() do
         para "#{@amt}", width: 70, margin: 5
-        para " Starting ", width: 70, margin: 5
+        para " Starting ", width: 90, margin: 5
         _start = edit_line :width => 70
         _start.text = _starttext
         para " Ending ", width: 70, margin: 5
@@ -75,7 +58,6 @@ Shoes.app(width: 850) do
       move(1, 20, a[0]) 
       move(a[3], a[2], a[1])
     } 
-    mouse_move(50,50)
   end 
   
 
@@ -98,7 +80,7 @@ Shoes.app(width: 850) do
   para ""
 
   button "Stop", width: 850, height: 200 do
-    Process.spawn "screen -S usbserial -X stuff $'CB S\n'"
+    Process.spawn "screen -S usbserial -X stuff 'CB K\n'"
   end
 
 end
