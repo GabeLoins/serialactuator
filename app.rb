@@ -18,6 +18,8 @@ Process.spawn "screen -X -S usbserial kill"
 Process.spawn "screen -S usbserial /dev/ttyUSB0 9600"
 # this command sends the data after stuff to the open screen connection
 Process.spawn "screen -S usbserial -X stuff '\n'"
+# this command sends the fudge factor in case it has been lost
+Process.spawn "screen -S usbserial -X stuff 'GR2505:1000\n'"
 
 # this sets up a handler that closes our screen session when the user quits
 # the gui
@@ -28,35 +30,87 @@ end
 # this creates the gui
 Shoes.app(width: 900) do
   background "#FDF3E7"
-  # @ in ruby means global variable. this way functions can access them
+  # @ in ruby means global(instance. this program is one big class) variable. this way functions can access them
   # amt is the row number were at
   @amt = 0
   # this is a list of the text field objects on the screen
   @texts = []
   @numbers = []
+  @radios = []
+
+  # return current absolute position
+  def getPosition()
+      f = File.new("position.txt", 'w')
+      f.close
+      Process.spawn "screen -S usbserial -p 0 -X stuff 'blerg\n'"
+      Process.spawn "screen -S usbserial -p 0 -X stuff 'tupac is alive\n'"
+      Process.spawn "screen -d usbserial"
+      Process.spawn "screen -r usbserial -p 0 -X hardcopy position.txt"
+      # puts File.read("position.txt")
+      # IO.read("position.txt")
+      "balls"
+  end
 
   # tell the arm to move to absolute position pos
   def move(acc, dec, ve, pos) 
     Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DA#{pos} GO\n'" 
   end 
 
+  # tell the arm to move dist units from its current position
+  def move_incremental(acc, dec, ve, dist)
+    Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DI#{dist} GO\n'"
+  end
+
   def refresh_numbers()
     @numbers.each_with_index{ |field, index| field.text = "#{index + 1}" }
     @amt = @numbers.length
   end
 
-  # create a new blank row in the gui
-  def new_row()
-    make_row("", "", "", "", "")
+  def _get_predecessor()
+    for x in @radios do
+      break if x.checked?
+    end
+    if x
+      x = x.parent
+    end
+    return x
   end
 
-  def make_row(_starttext, _endtext, _speedtext, _acceltext, _deceltext)
-    @amt = @amt + 1
-    # this means append the following to our list of instructions
-    @batch.append do
+  def new_end_loop()
+    x = 53
+  end
+  
+  def new_loop()
+    make_loop("", "", _get_predecessor())
+  end
+
+  def make_loop(_iterationstext, _pausetext, _predecessor)
+    @batch.after(_predecessor) do
       _row = flow do
+        para " Loop Start ", width: 70, margin: 5
+        para " iterations ", width: 70, margin: 5
+        _iterations = edit_line :width => 30
+      end
+    end
+  end
+
+   # create a new blank row in the gui
+  def new_row()
+    make_row("", "", "", "", "", "", _get_predecessor())
+  end
+
+  def make_row(_starttext, _endtext, _speedtext, _acceltext, _deceltext, _incrValue, _predecessor)
+    @amt = @amt + 1 
+    # this means append the following to our list of instructions
+    @batch.after(_predecessor) do
+      puts "new row!"
+      _row = flow do
+        para "  ", width: 70, margin: 5
         # para is a text field. #{value} puts a integer into a string
         _number = para "#{@amt}", width: 70, margin: 5
+        para " selected ", width: 70, margin: 5
+        _selected = radio :selcted
+        _selected.checked = true
         para " Starting ", width: 90, margin: 5
         # edit_line creates a text field
         _start = edit_line :width => 70
@@ -74,7 +128,9 @@ Shoes.app(width: 900) do
         para " Decel ", width: 70, margin: 5
         _decel = edit_line :width => 70
         _decel.text = _deceltext
-      
+        para " incremental ", width: 90, margin: 5
+        _incr = check :width => 70
+        _incr = _incrValue
         para "  ", width: 40, margin: 5
 
         button "X" do
@@ -83,7 +139,9 @@ Shoes.app(width: 900) do
           @texts.delete(_speed)
           @texts.delete(_accel)
           @texts.delete(_decel)
+          @texts.delete(_incr)
           @numbers.delete(_number)
+          @radios.delete(_selected)
           refresh_numbers() 
           _row.clear
           # refresh the instruction pool
@@ -91,7 +149,8 @@ Shoes.app(width: 900) do
         end
 
         # add all the text fields to your list of text fields
-        @texts << _start << _end << _speed << _accel << _decel
+        @texts << _start << _end << _speed << _accel << _decel << _incr
+        @radios << _selected
         @numbers << _number
       end
     end
@@ -101,19 +160,27 @@ Shoes.app(width: 900) do
   @batch = stack do
   end
   # initialize @batch with a single empty row
-  new_row()
+  new_row()     
 
   # defines a button. inside the do block is what happens when the button
   # is clicked (in this case we add an empty row)
-  button "Add" do
+  button "Add Command" do
     new_row()
+  end
+
+  button "Start Loop" do
+    new_loop()
+  end
+
+  button "End Loop" do
+    new_end_loop()
   end
 
   button "Go" do
     # params is now a list of the text inside every text field
     params = @texts.collect{|x| x.text}    
     # each_slice(4) runs following function for each block of 4 text fields
-    params.each_slice(5) {|a| 
+    params.each_slice(6) {|a| 
       # if there is a starting position go there first
       if a[0].strip != ""
         move(1, 1, 20, a[0]) 
@@ -136,7 +203,7 @@ Shoes.app(width: 900) do
     @texts = []
     @batch.clear
     @amt = 0
-    contents.each_slice(5) {|a| make_row(a[0], a[1], a[2], a[3], a[4])}
+    contents.each_slice(6) {|a| make_row(a[0], a[1], a[2], a[3], a[4], a[5])}
   end
 
   button "Set Zero" do
@@ -152,6 +219,14 @@ Shoes.app(width: 900) do
       @amt = 0
       new_row()
     end
+  end
+
+  button "Go To Zero" do
+    move(1, 1, 20, 0)
+  end
+
+  button "print location" do
+    puts getPosition()
   end
 
   # new line
