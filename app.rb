@@ -28,15 +28,19 @@ at_exit do
 end
 
 # this creates the gui
-Shoes.app(width: 900) do
+Shoes.app(width: 900, scroll: true) do
   background "#FDF3E7"
+
   # @ in ruby means global(instance. this program is one big class) variable. this way functions can access them
   # amt is the row number were at
   @amt = 0
+  @LABEL_WIDTH = 60
+  @INPUT_WIDTH = 40
   # this is a list of the text field objects on the screen
   @texts = []
   @numbers = []
   @radios = []
+  @indents = []
 
   # return current absolute position
   def getPosition()
@@ -56,7 +60,7 @@ Shoes.app(width: 900) do
     Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DA#{pos} GO\n'" 
   end 
 
-  # tell the arm to move dist units from its current position
+    # tell the arm to move dist units from its current position
   def move_incremental(acc, dec, ve, dist)
     Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DI#{dist} GO\n'"
   end
@@ -64,6 +68,27 @@ Shoes.app(width: 900) do
   def refresh_numbers()
     @numbers.each_with_index{ |field, index| field.text = "#{index + 1}" }
     @amt = @numbers.length
+  end
+
+  def refresh_indents()
+    puts "refreshing"
+    indent_level = 0
+    @indents.each{ |indent|
+      container, type = indent
+      if type == "start"
+        indent_level += 1
+      end
+      
+      container.clear()
+      container.style(width:0.1*indent_level)
+
+        puts "an indent"
+        
+        if type == "end"
+          indent_level -= 1
+        end
+    }
+    puts "over\n"
   end
 
   def _get_predecessor()
@@ -76,22 +101,111 @@ Shoes.app(width: 900) do
     return x
   end
 
-  def new_end_loop()
-    x = 53
+  def new_loop_end()
+    make_loop_end(_get_predecessor())
   end
-  
+
+  def make_loop_end(_predecessor, _indent_level)
+    @batch.after(_predecessor) do
+      _row = flow() do
+        
+        # _indent = [(para "****************************", width: 70, margin: 5), "end"]
+        para " Loop End ", width: 40, margin: 5, size: 8
+
+        _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
+        _indents = [ _indent_flow, "end"]
+
+        para " selected ", width: 40, margin: 5, size: 8
+        _selected = radio :selected
+        _selected.checked = true
+
+        # workaround for seven data points in a normal row
+        _placehold1 = "one"
+        _placehold2 = "two"
+        _placehold3 = "three"
+        _placehold4 = "four"
+        _placehold5 = "five"
+        _placehold6 = "six"
+
+        button "X" do
+          @texts.delete(_placehold1)
+          @texts.delete(_placehold2)
+          @texts.delete(_placehold3)
+          @texts.delete(_placehold4)
+          @texts.delete(_placehold5)
+          # @texts.delete(_placehold6)
+
+          @radios.delete(_selected)
+          @indents.delete(_indents)
+          refresh_indents()
+          _row.clear()
+
+          # refresh the instruction pool
+          @batch.append do end
+        end
+        # add all the text fields to your list of text fields
+        @texts << "loop_end" << _indent_level << _placehold1 << _placehold2 << _placehold3 << _placehold4 << _placehold5 #<< _placehold6
+        @radios << _selected
+        @indents << _indents
+        refresh_indents()
+      end
+    end
+    @batch.append do end
+  end
+
   def new_loop()
     make_loop("", "", _get_predecessor())
   end
 
-  def make_loop(_iterationstext, _pausetext, _predecessor)
+  def make_loop(_iterationstext, _pausetext, _predecessor, _indent_level)
     @batch.after(_predecessor) do
-      _row = flow do
-        para " Loop Start ", width: 70, margin: 5
-        para " iterations ", width: 70, margin: 5
-        _iterations = edit_line :width => 30
+      _row = flow() do
+        # _indent = [(para "****************************", width: 70, margin: 5), "start"]
+        para " Loop Start ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
+        _indents = [ _indent_flow, "start"]
+
+        para " selected ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _selected = radio :selected
+        _selected.checked = true
+        para " iterations ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _iterations = edit_line :width => @INPUT_WIDTH
+        _iterations.text = _iterationstext
+        para " pause time ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _pause = edit_line :width => @INPUT_WIDTH
+        _pause.text = _pausetext
+
+        # workaround for seven data points in a normal row
+        _placehold1 = "one"
+        _placehold2 = "two"
+        _placehold3 = "three"
+        # _placehold4 = "four"
+
+        button "X" do
+          @texts.delete(_iterations)
+          @texts.delete(_pause)
+          @texts.delete(_indent_level)
+          @texts.delete(_placehold1)
+          @texts.delete(_placehold2)
+          @texts.delete(_placehold3)
+          # @texts.delete(_placehold4)
+          @radios.delete(_selected)
+          @indents.delete(_indents)
+          refresh_indents()
+
+          _row.clear()
+          # refresh the instruction pool
+          @batch.append do end
+        end
+
+        # add all the text fields to your list of text fields
+        @texts << "loop_start" << _iterations << _pause << _indent_level << _placehold1 << _placehold2 << _placehold3 
+        @radios << _selected
+        @indents << _indents
+        refresh_indents()
       end
     end
+    @batch.append do end
   end
 
    # create a new blank row in the gui
@@ -103,35 +217,37 @@ Shoes.app(width: 900) do
     @amt = @amt + 1 
     # this means append the following to our list of instructions
     @batch.after(_predecessor) do
-      puts "new row!"
-      _row = flow do
-        para "  ", width: 70, margin: 5
+
+      _row = flow() do #scroll: true) do
+        _number = para "#{@amt}", width: @LABEL_WIDTH, margin: 5, size: 8
+        _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
+        _indents = [ _indent_flow, "row"]
+        # _indent = [(para "****************************", width: 70, margin: 5), "row"]
         # para is a text field. #{value} puts a integer into a string
-        _number = para "#{@amt}", width: 70, margin: 5
-        para " selected ", width: 70, margin: 5
-        _selected = radio :selcted
+        para " selected ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _selected = radio :selected
         _selected.checked = true
-        para " Starting ", width: 90, margin: 5
+        para " Starting ", width: @LABEL_WIDTH, margin: 5, size: 8
         # edit_line creates a text field
-        _start = edit_line :width => 70
+        _start = edit_line :width => @INPUT_WIDTH
         # edit_line.text sets the default text inside the text field
         _start.text = _starttext
-        para " Ending ", width: 70, margin: 5
-        _end = edit_line :width => 70
+        para " Ending ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _end = edit_line :width => @INPUT_WIDTH
         _end.text = _endtext
-        para " Speed ", width: 70, margin: 5
-        _speed = edit_line :width => 70
+        para " Speed ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _speed = edit_line :width => @INPUT_WIDTH
         _speed.text = _speedtext
-        para " Accel ", width: 70, margin: 5
-        _accel = edit_line :width => 70
+        para " Accel ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _accel = edit_line :width => @INPUT_WIDTH
         _accel.text = _acceltext
-        para " Decel ", width: 70, margin: 5
-        _decel = edit_line :width => 70
+        para " Decel ", width: @LABEL_WIDTH, margin: 5, size: 8
+        _decel = edit_line :width => @INPUT_WIDTH
         _decel.text = _deceltext
-        para " incremental ", width: 90, margin: 5
-        _incr = check :width => 70
+        para " incremental ", width: 90, margin: 5, size: 8
+        _incr = check :width => @INPUT_WIDTH
         _incr = _incrValue
-        para "  ", width: 40, margin: 5
+        para "  ", width: @INPUT_WIDTH, margin: 5, size: 8
 
         button "X" do
           @texts.delete(_start)
@@ -142,18 +258,27 @@ Shoes.app(width: 900) do
           @texts.delete(_incr)
           @numbers.delete(_number)
           @radios.delete(_selected)
+          @indents.delete(_indents)
           refresh_numbers() 
+          refresh_indents()
           _row.clear
           # refresh the instruction pool
           @batch.append do end
         end
 
         # add all the text fields to your list of text fields
-        @texts << _start << _end << _speed << _accel << _decel << _incr
+        @texts << "command" << _start << _end << _speed << _accel << _decel << _incr
+        @saveData << 
         @radios << _selected
         @numbers << _number
+        @indents << _indents
+        refresh_indents()
       end
+      # _row.append do
+        
+      # end
     end
+    @batch.append do end
   end
 
   # create the batch variable which holds all our instruction rows
@@ -173,7 +298,7 @@ Shoes.app(width: 900) do
   end
 
   button "End Loop" do
-    new_end_loop()
+    new_loop_end()
   end
 
   button "Go" do
@@ -203,7 +328,18 @@ Shoes.app(width: 900) do
     @texts = []
     @batch.clear
     @amt = 0
-    contents.each_slice(6) {|a| make_row(a[0], a[1], a[2], a[3], a[4], a[5])}
+    contents.each_slice(7) {|a| 
+      if a[0] == "command"
+        make_row(a[1], a[2], a[3], a[4], a[5], a[6])
+
+      elsif a[0] == "loop_start"
+        make_loop(a[1], a[2], a[3])
+
+      elsif a[0] == "loop_end" 
+        make_loop_end(nil)
+      end
+    }
+
   end
 
   button "Set Zero" do
