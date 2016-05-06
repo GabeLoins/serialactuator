@@ -36,6 +36,7 @@ Shoes.app(width: 900, scroll: true) do
   @amt = 0
   @LABEL_WIDTH = 60
   @INPUT_WIDTH = 40
+  @FONT_SIZE = 10
   # this is a list of the text field objects on the screen
   @texts = []
   @numbers = []
@@ -91,6 +92,10 @@ Shoes.app(width: 900, scroll: true) do
     puts "over\n"
   end
 
+  def get_indent_level(_predecessor)
+    return 1
+  end
+  
   def _get_predecessor()
     for x in @radios do
       break if x.checked?
@@ -110,12 +115,12 @@ Shoes.app(width: 900, scroll: true) do
       _row = flow() do
         
         # _indent = [(para "****************************", width: 70, margin: 5), "end"]
-        para " Loop End ", width: 40, margin: 5, size: 8
+        para " Loop End ", width: 40, margin: 5, size: @FONT_SIZE
 
         _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
         _indents = [ _indent_flow, "end"]
 
-        para " selected ", width: 40, margin: 5, size: 8
+        para " selected ", width: 40, margin: 5, size: @FONT_SIZE
         _selected = radio :selected
         _selected.checked = true
 
@@ -157,21 +162,22 @@ Shoes.app(width: 900, scroll: true) do
     make_loop("", "", _get_predecessor())
   end
 
-  def make_loop(_iterationstext, _pausetext, _predecessor, _indent_level)
+  def make_loop(_iterationstext, _pausetext, _predecessor)
+    _indent_level = get_indent_level(_predecessor)
     @batch.after(_predecessor) do
       _row = flow() do
         # _indent = [(para "****************************", width: 70, margin: 5), "start"]
-        para " Loop Start ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Loop Start ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
         _indents = [ _indent_flow, "start"]
 
-        para " selected ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _selected = radio :selected
         _selected.checked = true
-        para " iterations ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " iterations ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _iterations = edit_line :width => @INPUT_WIDTH
         _iterations.text = _iterationstext
-        para " pause time ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " pause time ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _pause = edit_line :width => @INPUT_WIDTH
         _pause.text = _pausetext
 
@@ -219,35 +225,35 @@ Shoes.app(width: 900, scroll: true) do
     @batch.after(_predecessor) do
 
       _row = flow() do #scroll: true) do
-        _number = para "#{@amt}", width: @LABEL_WIDTH, margin: 5, size: 8
+        _number = para "#{@amt}", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _indent_flow = flow do para "bob saget", width: 70, margin: 5 end
         _indents = [ _indent_flow, "row"]
         # _indent = [(para "****************************", width: 70, margin: 5), "row"]
         # para is a text field. #{value} puts a integer into a string
-        para " selected ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _selected = radio :selected
         _selected.checked = true
-        para " Starting ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Starting ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         # edit_line creates a text field
         _start = edit_line :width => @INPUT_WIDTH
         # edit_line.text sets the default text inside the text field
         _start.text = _starttext
-        para " Ending ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Ending ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _end = edit_line :width => @INPUT_WIDTH
         _end.text = _endtext
-        para " Speed ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Speed ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _speed = edit_line :width => @INPUT_WIDTH
         _speed.text = _speedtext
-        para " Accel ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Accel ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _accel = edit_line :width => @INPUT_WIDTH
         _accel.text = _acceltext
-        para " Decel ", width: @LABEL_WIDTH, margin: 5, size: 8
+        para " Decel ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
         _decel = edit_line :width => @INPUT_WIDTH
         _decel.text = _deceltext
-        para " incremental ", width: 90, margin: 5, size: 8
+        para " incremental ", width: 90, margin: 5, size: @FONT_SIZE
         _incr = check :width => @INPUT_WIDTH
         _incr = _incrValue
-        para "  ", width: @INPUT_WIDTH, margin: 5, size: 8
+        para "  ", width: @INPUT_WIDTH, margin: 5, size: @FONT_SIZE
 
         button "X" do
           @texts.delete(_start)
@@ -267,8 +273,8 @@ Shoes.app(width: 900, scroll: true) do
         end
 
         # add all the text fields to your list of text fields
-        @texts << "command" << _start << _end << _speed << _accel << _decel << _incr
-        @saveData << 
+        @texts << "command" << _start << _end << _speed << _accel << _decel << _incr << _number
+        # @saveData << 
         @radios << _selected
         @numbers << _number
         @indents << _indents
@@ -317,7 +323,13 @@ Shoes.app(width: 900, scroll: true) do
   button "Save" do
     # ask_save file is built in to shoes and opens a dialogue for a save file
     save_to = ask_save_file
-    params = @texts.collect{|x| x.text}.join(",")    
+    params = []
+    @texts = texts.sort_by{ |f| [ f[-1].text ] }
+    @texts.each { |element|
+      params.concat( element.collect{|x| x.text}.join(",") )
+
+    }
+    # params = @texts.collect{|x| x.text}.join(",")    
     File.open(save_to, 'w') { |file| file.write(params) }
   end
   
