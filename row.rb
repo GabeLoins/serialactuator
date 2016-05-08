@@ -6,9 +6,15 @@ class Row
 		@batch = _batch
 		@order = 0
 		@selected = true
+		@radio = nil
 	end
 	attr_accessor :selected
+	attr_accessor :radio
 
+	def select()
+		self.radio.checked = true
+	end
+	
 	def draw(parent)
 		order = @order
 		me = self
@@ -19,8 +25,11 @@ class Row
 			        
 			        _number = para "#{order}", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
 			        para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
-		    		_selected = radio :selected ; me.selected = true
-		    		_selected.checked = true
+		    		me.radio = radio :row#; me.selected = true
+		    			 # me.selected = true
+		    		# end
+
+		    		me.radio.checked = true
 
 			        me.drawFields()
 

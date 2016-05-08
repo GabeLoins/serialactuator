@@ -2,6 +2,8 @@
 require 'green_shoes'
 require_relative 'instruction'
 require_relative 'loopstart'
+require_relative 'LoopEnd'
+require_relative 'rowmanager'
 # Process.spawn opens an imaginary terminal window and then runs the command
 # *it is not blocking, and returns the process id of the new imaginary
 # terminal window*
@@ -46,7 +48,8 @@ Shoes.app(width: 900, scroll: true) do
   @radios = []
   @indents = []
 
-  @instructions = []
+  
+  # @instructions = []
 
   # return current absolute position
   def getPosition()
@@ -111,9 +114,9 @@ Shoes.app(width: 900, scroll: true) do
     return x
   end
 
-  def new_loop_end()
-    make_loop_end(_get_predecessor())
-  end
+  # def new_loop_end()
+  #   make_loop_end(_get_predecessor())
+  # end
 
   def make_loop_end(_predecessor, _indent_level)
     @batch.after(_predecessor) do
@@ -219,26 +222,6 @@ Shoes.app(width: 900, scroll: true) do
     @batch.append do end
   end
 
-   # create a new blank row in the gui
-  def new_row()
-    myRow = Instruction.new("", "", "", "", "", "", @batch)
-    # @instructions.push(myRow)
-    if @instructions.empty?
-      @instructions.push(myRow)
-    else
-      index = 0
-      @instructions.each_with_index do |row, i|
-        if row.selected
-          index = i
-        end
-      end
-      @instructions.insert(index+1,myRow)
-    end
-    draw()
-    # myRow.draw()
-    # make_row("", "", "", "", "", "", _get_predecessor())
-  end
-
   def make_row(_starttext, _endtext, _speedtext, _acceltext, _deceltext, _incrValue, _predecessor)
     @amt = @amt + 1 
     # this means append the following to our list of instructions
@@ -307,21 +290,64 @@ Shoes.app(width: 900, scroll: true) do
     @batch.append do end
   end
 
-  def draw()
-    @batch.clear()
-    for instruction in @instructions do
-      instruction.draw(self)
-    end
+  # create a new Loop End in the gui
+  def new_loop_end()
+    myLoopEnd = LoopEnd.new(@batch)
+    @rowManager.insert_row(myLoopEnd)
   end
 
-  def remove(instruction)
-    @instructions.delete(instruction)
-    draw()
+  # create a new Loop Start in the gui
+  def new_loop_start()
+    myLoopStart = LoopStart.new("", "", @batch)
+    @rowManager.insert_row(myLoopStart)
   end
+
+  # create a new blank row in the gui
+  def new_row()
+    # return 0
+    myRow = Instruction.new("", "", "", "", "", "", @batch)
+    @rowManager.insert_row(myRow)
+  end
+
+  # def insert_row(newRow)
+  #   if @instructions.empty? # Add to front of instructions list
+  #     @instructions.push(newRow)
+  #   else # insert after selected instruction
+  #     index = get_selected_row_index()
+  #     @instructions.insert(index+1,newRow)
+  #   end
+  #   draw()
+  # end
+
+  # def get_selected_row_index()
+  #   @instructions.each_with_index do |row, i|
+  #     if row.radio.checked?()
+  #       return i
+  #     end
+  #   end
+  # end
+
+  # # refresh gui maintaining current selection
+  # def draw()
+  #   index = get_selected_row_index()
+  #   @batch.clear()
+  #   for instruction in @instructions do
+  #     instruction.draw(self)
+  #   end
+  #   if not @instructions.empty?()
+  #     @instructions[index].select()
+  #   end
+  # end
+
+  # def remove(instruction)
+  #   @instructions.delete(instruction)
+  #   draw()
+  # end
 
   # create the batch variable which holds all our instruction rows
   @batch = stack do
   end
+  @rowManager = RowManager.new(@batch)
   # initialize @batch with a single empty row
   new_row()     
 
@@ -329,11 +355,10 @@ Shoes.app(width: 900, scroll: true) do
   # is clicked (in this case we add an empty row)
   button "Add Command" do
     new_row()
-    draw()
   end
 
   button "Start Loop" do
-    new_loop()
+    new_loop_start()
   end
 
   button "End Loop" do
