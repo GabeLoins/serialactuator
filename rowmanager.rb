@@ -15,6 +15,7 @@ class RowManager
 	    	@rows.insert(index+1,newRow)
 	    end
 	    draw()
+	    newRow.select()
 	end
 
 	def remove(instruction)
