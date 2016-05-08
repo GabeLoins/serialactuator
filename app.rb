@@ -1,6 +1,7 @@
 # green shoes is the gui library we're using.
 require 'green_shoes'
-
+require_relative 'instruction'
+require_relative 'loopstart'
 # Process.spawn opens an imaginary terminal window and then runs the command
 # *it is not blocking, and returns the process id of the new imaginary
 # terminal window*
@@ -27,6 +28,8 @@ at_exit do
   Process.spawn "screen -X -S usbserial kill\n"
 end
 
+
+
 # this creates the gui
 Shoes.app(width: 900, scroll: true) do
   background "#FDF3E7"
@@ -42,6 +45,8 @@ Shoes.app(width: 900, scroll: true) do
   @numbers = []
   @radios = []
   @indents = []
+
+  @instructions = []
 
   # return current absolute position
   def getPosition()
@@ -95,7 +100,7 @@ Shoes.app(width: 900, scroll: true) do
   def get_indent_level(_predecessor)
     return 1
   end
-  
+
   def _get_predecessor()
     for x in @radios do
       break if x.checked?
@@ -216,7 +221,22 @@ Shoes.app(width: 900, scroll: true) do
 
    # create a new blank row in the gui
   def new_row()
-    make_row("", "", "", "", "", "", _get_predecessor())
+    myRow = Instruction.new("", "", "", "", "", "", @batch)
+    # @instructions.push(myRow)
+    if @instructions.empty?
+      @instructions.push(myRow)
+    else
+      index = 0
+      @instructions.each_with_index do |row, i|
+        if row.selected
+          index = i
+        end
+      end
+      @instructions.insert(index+1,myRow)
+    end
+    draw()
+    # myRow.draw()
+    # make_row("", "", "", "", "", "", _get_predecessor())
   end
 
   def make_row(_starttext, _endtext, _speedtext, _acceltext, _deceltext, _incrValue, _predecessor)
@@ -287,6 +307,18 @@ Shoes.app(width: 900, scroll: true) do
     @batch.append do end
   end
 
+  def draw()
+    @batch.clear()
+    for instruction in @instructions do
+      instruction.draw(self)
+    end
+  end
+
+  def remove(instruction)
+    @instructions.delete(instruction)
+    draw()
+  end
+
   # create the batch variable which holds all our instruction rows
   @batch = stack do
   end
@@ -297,6 +329,7 @@ Shoes.app(width: 900, scroll: true) do
   # is clicked (in this case we add an empty row)
   button "Add Command" do
     new_row()
+    draw()
   end
 
   button "Start Loop" do
