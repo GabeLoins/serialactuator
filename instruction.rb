@@ -10,6 +10,12 @@ class Instruction < Row
 		@accel = _acceltext
 		@decel = _deceltext
 		@incr = _incrValue
+		@type = "INSTRUCTION"
+		# @decel = 5
+		# puts @start
+		@elements = [@start, @end, @speed, @accel, @decel, @incr]
+		# @end = 5
+		# puts "#{@elements}"
 	end
 	attr_accessor :start
 	attr_accessor :end
@@ -18,8 +24,15 @@ class Instruction < Row
 	attr_accessor :decel
 	attr_accessor :incr
 
+	def get_save_string()
+		save_string = ""
+		save_string << "#{@type}," << "#{@start}," << "#{@end}," << "#{@speed}," << "#{@accel}," << "#{@decel}," <<"#{@incr}" << "\n"
+		return save_string
+	end
+
 	def drawFields(me)
 		myStart = @start
+		me = self
 		@batch.app do
 		    # _indent_flow = flow do para "", width: 70, margin: 5 end
 		    # _indents = [ _indent_flow, "row"]

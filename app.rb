@@ -357,17 +357,17 @@ Shoes.app(width: 900, scroll: true) do
     } 
   end 
   
+  
   button "Save" do
     # ask_save file is built in to shoes and opens a dialogue for a save file
     save_to = ask_save_file
-    params = []
-    @texts = texts.sort_by{ |f| [ f[-1].text ] }
-    @texts.each { |element|
-      params.concat( element.collect{|x| x.text}.join(",") )
-
-    }
-    # params = @texts.collect{|x| x.text}.join(",")    
-    File.open(save_to, 'w') { |file| file.write(params) }
+    save_string = @rowManager.get_save_string()
+    begin
+      File.write(save_to, save_string)
+    rescue Exception => e
+      puts "FILE_WRITE_ERROR"
+      puts e.backtrace
+    end
   end
   
   button "Load" do

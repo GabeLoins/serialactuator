@@ -18,15 +18,14 @@ class RowManager
 	    newRow.select()
 	end
 
-	def remove(instruction)
+	def remove(row)
 		begin
-		partner = get_loop_pair(instruction) # terminate loop start end pairs together
+		partner = get_loop_pair(row) # terminate loop start end pairs together
 		if not partner.nil?
 			@rows.delete(partner)
-			# partner.mark()
 		end
 
-		@rows.delete(instruction)
+		@rows.delete(row)
 		draw()
 		rescue Exception => e
   			puts e.backtrace
@@ -62,7 +61,7 @@ class RowManager
 	def draw()
 		# save_values()
 		index = get_selected_row_index()
-		@batch.app do
+		@batch.app do	
 			@batch.clear()
 		end
 		indent = 0
@@ -102,5 +101,13 @@ class RowManager
 				return i
 			end
 		end
+	end
+
+	def get_save_string()
+		save_string = ""
+		for row in @rows
+			save_string << row.get_save_string()
+		end
+		return save_string
 	end
 end

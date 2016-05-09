@@ -5,6 +5,7 @@ class LoopEnd < Row
 	def initialize(_batch)
 		super(_batch, 0)
 		@indentType = -1
+		@type = "LOOP_END"
 	end
 
 	def drawFields(me)

@@ -4,20 +4,24 @@ class Row
 	@INPUT_WIDTH = 40
 	@FONT_SIZE = 10
 	def initialize(_batch, order)
-		@batch = _batch
+		@batch = _batch #main stack; can initiate draw calls
 		@order = 0
 		@selected = true
 		@radio = nil
-		@indentLevel = 0
-		@indentType = 0
+		@indentLevel = 0 #updated dynamically 
+		@indentType = 0 #do I change the current indent level?
+		@elements = []
 	end
 	attr_accessor :indentLevel
 	attr_accessor :indentType
 	attr_accessor :radio
 	attr_accessor :order
 
-	def isLoop()
-		return 0
+	def get_save_string()
+		save_string = ""
+		save_string << "#{@type}"
+		save_string << "\n"
+		return save_string
 	end
 
 	def select()
