@@ -16,6 +16,7 @@ class Row
 	attr_accessor :indentType
 	attr_accessor :radio
 	attr_accessor :order
+	attr_accessor :type
 
 	def get_save_string()
 		save_string = ""

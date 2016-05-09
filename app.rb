@@ -4,6 +4,7 @@ require_relative 'instruction'
 require_relative 'loopstart'
 require_relative 'LoopEnd'
 require_relative 'rowmanager'
+require_relative 'robotinterface'
 # Process.spawn opens an imaginary terminal window and then runs the command
 # *it is not blocking, and returns the process id of the new imaginary
 # terminal window*
@@ -98,27 +99,6 @@ Shoes.app(width: 900, scroll: true) do
   def refresh_numbers()
     @numbers.each_with_index{ |field, index| field.text = "#{index + 1}" }
     @amt = @numbers.length
-  end
-
-  def refresh_indents()
-    puts "refreshing"
-    indent_level = 0
-    @indents.each{ |indent|
-      container, type = indent
-      if type == "start"
-        indent_level += 1
-      end
-      
-      container.clear()
-      container.style(width:0.1*indent_level)
-
-        puts "an indent"
-        
-        if type == "end"
-          indent_level -= 1
-        end
-    }
-    puts "over\n"
   end
 
   def get_indent_level(_predecessor)
@@ -336,6 +316,7 @@ Shoes.app(width: 900, scroll: true) do
   @batch = stack do
   end
   @rowManager = RowManager.new(@batch)
+  @robotInterface = RobotInterface.new()
   
   # initialize @batch with a single empty row
   new_row()     
@@ -367,6 +348,10 @@ Shoes.app(width: 900, scroll: true) do
       move(a[3], a[4], a[2], a[1])
     } 
   end 
+
+  button "Go" do
+    @robotInterface.execute_commands(@rowManager.get_rows())
+  end
   
   
   button "Save" do
@@ -393,6 +378,11 @@ Shoes.app(width: 900, scroll: true) do
         type = row.shift()
         if type == "INSTRUCTION"
           puts row
+          if row[-1] == "true"
+            row[-1] = true
+          else #row[-1] == "false"
+            row[-1] = false
+          end
           new_row(row)
         elsif type == "LOOP_START"
           new_loop_start(row)
@@ -406,27 +396,6 @@ Shoes.app(width: 900, scroll: true) do
       puts e.backtrace
     end
   end
-
-  # button "Load" do
-  #   load_from = ask_open_file
-  #   contents = File.read(load_from)
-  #   contents = contents.split(",")
-  #   @texts = []
-  #   @batch.clear
-  #   @amt = 0
-  #   contents.each_slice(7) {|a| 
-  #     if a[0] == "command"
-  #       make_row(a[1], a[2], a[3], a[4], a[5], a[6])
-
-  #     elsif a[0] == "loop_start"
-  #       make_loop(a[1], a[2], a[3])
-
-  #     elsif a[0] == "loop_end" 
-  #       make_loop_end(nil)
-  #     end
-  #   }
-
-  # end
 
   button "Set Zero" do
     # SP means set position: define its absolute position as the following

@@ -4,6 +4,7 @@ class Instruction < Row
 
 	def initialize(_starttext, _endtext, _speedtext, _acceltext, _deceltext, _incrValue, _batch)
 		super(_batch, 0)
+		puts _incrValue
 		@start = _starttext
 		@end = _endtext
 		@speed = _speedtext
@@ -57,7 +58,7 @@ class Instruction < Row
 		    _decel.text = me.decel
 		    para " incremental ", width: 90, margin: 5, size: @FONT_SIZE
 		    _incr = check :width => @INPUT_WIDTH do |i| me.incr = i.checked? end
-		    _incr = me.incr
+		    _incr.checked = me.incr
 		    para "  ", width: @INPUT_WIDTH, margin: 5, size: @FONT_SIZE
 		end
 	end

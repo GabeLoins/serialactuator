@@ -7,6 +7,10 @@ class RowManager
 		@rows = []
 	end
 
+	def get_rows()
+		return @rows
+	end
+	
 	def insert_row(newRow)
 	    if @rows.empty? # Add to front of instructions list
 	    	@rows.push(newRow)
@@ -21,7 +25,7 @@ class RowManager
 	def clear()
 		@rows = []
 	end
-	
+
 	def remove(row)
 		begin
 		partner = get_loop_pair(row) # terminate loop start end pairs together
