@@ -19,18 +19,64 @@ class RowManager
 	end
 
 	def remove(instruction)
+		begin
+		partner = get_loop_pair(instruction) # terminate loop start end pairs together
+		if not partner.nil?
+			@rows.delete(partner)
+			# partner.mark()
+		end
+
 		@rows.delete(instruction)
 		draw()
+		rescue Exception => e
+  			puts e.backtrace
+
+		end
+	end
+
+	def get_loop_pair(row)
+		if row.indentType == 0
+			return nil
+		end
+
+		index = get_row_index(row)
+		len = @rows.size - 1
+		if row.indentType < 0 # end loop
+			@rows.reverse.each_with_index do |anotherRow, i|
+				next if len - i >= index || anotherRow.indentType == 0
+				if anotherRow.indentLevel == row.indentLevel
+					return anotherRow
+				end
+			end
+		elsif row.indentType > 0 # start loop
+			@rows.each_with_index do |anotherRow, i|
+				next if i <= index || anotherRow.indentType == 0
+				if anotherRow.indentLevel == row.indentLevel
+					return anotherRow
+				end
+			end
+		end
 	end
 
 	# refresh gui maintaining current selection
 	def draw()
+		# save_values()
 		index = get_selected_row_index()
 		@batch.app do
 			@batch.clear()
 		end
+		indent = 0
+		order = 1
 		for instruction in @rows do
-			instruction.draw(self)
+			if instruction.indentType > 0
+				indent += instruction.indentType
+			end
+			instruction.order = order
+			order += 1
+			instruction.draw(self, indent, instruction)
+			if instruction.indentType < 0
+				indent += instruction.indentType
+			end
 		end
 		if not @rows.empty?()
 			@rows[index].select()
@@ -44,6 +90,15 @@ class RowManager
 		end
 		@rows.each_with_index do |row, i|
 			if row.radio.checked?
+				return i
+			end
+		end
+		return 0
+	end
+
+	def get_row_index(row)
+		@rows.each_with_index do |aRow, i|
+			if aRow == row
 				return i
 			end
 		end
