@@ -15,7 +15,8 @@ class LoopStart < Row
 
 	def get_save_string()
 		save_string = ""
-		save_string << "#{@iterations}," << "#{@pauseDuration}," << "\n"
+		save_string << "#{@type},"
+		save_string << "#{@iterations}," << "#{@pauseDuration}" << "\n"
 		return save_string
 	end
 

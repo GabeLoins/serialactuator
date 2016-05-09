@@ -311,16 +311,27 @@ Shoes.app(width: 900, scroll: true) do
   end
 
   # create a new Loop Start in the gui
-  def new_loop_start()
-    myLoopStart = LoopStart.new("", "", @batch)
+  def new_loop_start(args = nil)
+    if !args.nil?
+      # myLoopStart = LoopStart.new(args[0],args[1],@batch)
+      myLoopStart = LoopStart.new(*args, @batch)
+    else
+      myLoopStart = LoopStart.new("", "", @batch)
+    end
     @rowManager.insert_row(myLoopStart)
   end
+
   # create a new blank row in the gui
-  def new_row()
-    # return 0
-    myRow = Instruction.new("", "", "", "", "", "", @batch)
+  def new_row(args = nil)
+    if !args.nil?
+      # myRow = Instruction.new(args[0],args[1],args[2],args[3],args[4],args[5],@batch)
+      myRow = Instruction.new(*args, @batch)
+    else
+      myRow = Instruction.new("", "", "", "", "", "", @batch)
+    end
     @rowManager.insert_row(myRow)
   end
+
   # create the batch variable which holds all our instruction rows
   @batch = stack do
   end
@@ -371,25 +382,51 @@ Shoes.app(width: 900, scroll: true) do
   end
   
   button "Load" do
-    load_from = ask_open_file
-    contents = File.read(load_from)
-    contents = contents.split(",")
-    @texts = []
-    @batch.clear
-    @amt = 0
-    contents.each_slice(7) {|a| 
-      if a[0] == "command"
-        make_row(a[1], a[2], a[3], a[4], a[5], a[6])
-
-      elsif a[0] == "loop_start"
-        make_loop(a[1], a[2], a[3])
-
-      elsif a[0] == "loop_end" 
-        make_loop_end(nil)
+    @batch.clear()
+    @rowManager.clear()
+    begin
+      load_from = ask_open_file
+      contents = File.read(load_from)
+      contents = contents.split("\n")
+      for row in contents
+        row = row.split(",",-1)
+        type = row.shift()
+        if type == "INSTRUCTION"
+          puts row
+          new_row(row)
+        elsif type == "LOOP_START"
+          new_loop_start(row)
+        else
+          new_loop_end()
+        end
       end
-    }
-
+      # puts contents
+    rescue => e
+      puts "FILE_LOAD_ERROR"
+      puts e.backtrace
+    end
   end
+
+  # button "Load" do
+  #   load_from = ask_open_file
+  #   contents = File.read(load_from)
+  #   contents = contents.split(",")
+  #   @texts = []
+  #   @batch.clear
+  #   @amt = 0
+  #   contents.each_slice(7) {|a| 
+  #     if a[0] == "command"
+  #       make_row(a[1], a[2], a[3], a[4], a[5], a[6])
+
+  #     elsif a[0] == "loop_start"
+  #       make_loop(a[1], a[2], a[3])
+
+  #     elsif a[0] == "loop_end" 
+  #       make_loop_end(nil)
+  #     end
+  #   }
+
+  # end
 
   button "Set Zero" do
     # SP means set position: define its absolute position as the following

@@ -18,6 +18,10 @@ class RowManager
 	    newRow.select()
 	end
 
+	def clear()
+		@rows = []
+	end
+	
 	def remove(row)
 		begin
 		partner = get_loop_pair(row) # terminate loop start end pairs together
