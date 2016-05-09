@@ -17,7 +17,7 @@ class RobotInterface
   	for row in rows
   		if row.type == "INSTRUCTION"
   			if row.incr == true
-
+          move_absolute(row.accel, row.decel, )
   			end
   		end
   	end

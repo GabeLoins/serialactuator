@@ -67,7 +67,6 @@ class RowManager
 
 	# refresh gui maintaining current selection
 	def draw()
-		# save_values()
 		index = get_selected_row_index()
 		@batch.app do	
 			@batch.clear()
