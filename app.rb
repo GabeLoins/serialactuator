@@ -34,7 +34,7 @@ end
 
 # this creates the gui
 
-Shoes.app(width: 900, scroll: true) do
+Shoes.app(:width => 900, scroll: true) do
   background "#FDF3E7"
 
   # @ in ruby means global(instance. this program is one big class) variable. this way functions can access them
@@ -94,7 +94,7 @@ Shoes.app(width: 900, scroll: true) do
   end
 
   # create the batch variable which holds all our instruction rows
-  @batch = stack do
+  @batch = stack :width => 1.0 do
   end
   @rowManager = RowManager.new(@batch)
   @robotInterface = RobotInterface.new()
@@ -113,9 +113,20 @@ Shoes.app(width: 900, scroll: true) do
   end
 
   button "Start Loop" do
-    new_loop_start()
+    row = new_loop_start()
     new_loop_end()
+    row.select()
   end
+
+  button "Erase" do
+    if confirm("do you want to erase all your instructions?")
+      @rowManager.clear()
+      @batch.clear
+      new_row()
+    end
+  end
+
+  para ""
 
   button "Go" do
     rows = @rowManager.get_rows()
@@ -123,6 +134,18 @@ Shoes.app(width: 900, scroll: true) do
       @robotInterface.execute_commands(rows)
     end
   end
+  
+  button "Set Zero" do
+    # SP means set position: define its absolute position as the following
+    # here we set wherever you are's absolute position as 0
+    Process.spawn "screen -S usbserial -X stuff 'SP0\n'"
+  end
+
+  button "Go To Zero" do
+    @robotinterface.go_to_zero()
+  end
+
+  para ""
   
   button "Save" do
     # ask_save file is built in to shoes and opens a dialogue for a save file
@@ -169,27 +192,11 @@ Shoes.app(width: 900, scroll: true) do
     end
   end
 
-  button "Set Zero" do
-    # SP means set position: define its absolute position as the following
-    # here we set wherever you are's absolute position as 0
-    Process.spawn "screen -S usbserial -X stuff 'SP0\n'"
-  end
+  
 
-  button "Erase" do
-    if confirm("do you want to erase all your instructions?")
-      @rowManager.clear()
-      @batch.clear
-      new_row()
-    end
-  end
-
-  button "Go To Zero" do
-    move(1, 1, 20, 0)
-  end
-
-  button "print location" do
-    puts getPosition()
-  end
+  # button "print location" do
+  #   puts getPosition()
+  # end
 
   # new line
   para ""

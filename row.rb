@@ -44,10 +44,7 @@ class Row
 			        	para width: 60, margin: 5
 			        end
 			        _number = para "#{order}", width: 20, margin: 5, size: @FONT_SIZE
-			        # para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
-		    		me.radio = radio :row#; me.selected = true
-		    			 # me.selected = true
-		    		# end
+		    		me.radio = radio :row
 
 		    		me.radio.checked = true
 

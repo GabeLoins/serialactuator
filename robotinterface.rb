@@ -18,6 +18,10 @@ class RobotInterface
     Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DI#{dist} GO\n'"
   end
 
+  def go_to_zero()
+    move_absolute(1, 1, 20, 0)
+  end
+  
   def execute_commands(rows)
       execute_commands_helper(rows)
   end

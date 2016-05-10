@@ -39,6 +39,7 @@ class RowManager
 	    end
 	    draw()
 	    newRow.select()
+	    return newRow
 	end
 
 	def clear()
