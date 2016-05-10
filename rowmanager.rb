@@ -30,6 +30,12 @@ class RowManager
 		return result
 	end
 
+	def add_row(newRow)
+		puts "ADDING ROW"
+		@rows.push(newRow)
+		newRow.draw(self, 0, newRow)
+	end
+
 	def insert_row(newRow)
 	    if @rows.empty? # Add to front of instructions list
 	    	@rows.push(newRow)

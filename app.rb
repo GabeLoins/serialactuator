@@ -2,8 +2,8 @@
 require 'green_shoes'
 require_relative 'instruction'
 require_relative 'loopstart'
-require_relative 'LoopEnd'
-require_relative 'Pause'
+require_relative 'loopend'
+require_relative 'pause'
 require_relative 'rowmanager'
 require_relative 'robotinterface'
 # Process.spawn opens an imaginary terminal window and then runs the command
@@ -55,10 +55,16 @@ Shoes.app(:width => 900, scroll: true) do
       "balls"
   end
 
+  def load_loop_end()
+    myLoopEnd = LoopEnd.new(@batch)
+    @rowManager.add_row(myLoopEnd)
+  end
+
   # create a new Loop End in the gui
   def new_loop_end()
     myLoopEnd = LoopEnd.new(@batch)
     @rowManager.insert_row(myLoopEnd)
+    @rowManager.draw()
   end
 
   # create a new Loop Start in the gui
@@ -66,20 +72,24 @@ Shoes.app(:width => 900, scroll: true) do
     if !args.nil?
       # myLoopStart = LoopStart.new(args[0],args[1],@batch)
       myLoopStart = LoopStart.new(*args, @batch)
+      @rowManager.add_row(myLoopStart)
     else
       myLoopStart = LoopStart.new("1", @batch)
+      @rowManager.insert_row(myLoopStart)
+      # @rowManager.draw()
     end
-    @rowManager.insert_row(myLoopStart)
   end
 
   # create a new Pause row in the gui
   def new_pause(args = nil)
     if !args.nil?
       myPause = Pause.new(*args, @batch)
+      @rowManager.add_row(myPause)
     else
       myPause = Pause.new("", @batch)
+      @rowManager.insert_row(myPause)
+      @rowManager.draw()
     end
-    @rowManager.insert_row(myPause)
   end
 
   # create a new blank row in the gui
@@ -87,10 +97,12 @@ Shoes.app(:width => 900, scroll: true) do
     if !args.nil?
       # myRow = Instruction.new(args[0],args[1],args[2],args[3],args[4],args[5],@batch)
       myRow = Instruction.new(*args, @batch)
+      @rowManager.add_row(myRow)
     else
       myRow = Instruction.new("", "", "", "", false, @batch)
+      @rowManager.insert_row(myRow)
+      @rowManager.draw()
     end
-    @rowManager.insert_row(myRow)
   end
 
   # create the batch variable which holds all our instruction rows
@@ -167,6 +179,7 @@ Shoes.app(:width => 900, scroll: true) do
       contents = File.read(load_from)
       contents = contents.split("\n")
       for row in contents
+        puts "MAKING A ROW"
         row = row.split(",",-1)
         type = row.shift()
         if type == "INSTRUCTION"
@@ -182,7 +195,7 @@ Shoes.app(:width => 900, scroll: true) do
         elsif type == "PAUSE"
           new_pause(row)
         else
-          new_loop_end()
+          load_loop_end()
         end
       end
       # puts contents
@@ -190,6 +203,7 @@ Shoes.app(:width => 900, scroll: true) do
       puts "FILE_LOAD_ERROR"
       puts e.backtrace
     end
+    @rowManager.draw()
   end
 
   

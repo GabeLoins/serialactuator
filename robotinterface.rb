@@ -10,8 +10,8 @@ class RobotInterface
   end 
 
   def pause(duration)
-    Process.spawn "screen -S usbserial -X stuff 'TD#{duration} GO\n'"
-    puts "screen -S usbserial -X stuff 'TD#{duration} GO\n'"
+    Process.spawn "screen -S usbserial -X stuff 'TD#{duration}\n'"
+    puts "screen -S usbserial -X stuff 'TD#{duration}\n'"
   end
 
     # tell the arm to move dist units from its current position
@@ -50,9 +50,9 @@ def execute_commands_helper(rows)
             # unless row.start.strip == "" # if there is a start position go there first
             #   move_absolute(1, 1, 20, row.start)
             # end
-            move_absolute(row.accel, row.decel, row.speed, row.end)
-          else
             move_incremental(row.accel, row.decel, row.speed, row.end)
+          else
+            move_absolute(row.accel, row.decel, row.speed, row.end)
           end
         elsif row.type == "PAUSE"
           pause(row.duration)
