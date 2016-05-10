@@ -53,6 +53,7 @@ def execute_commands_helper(rows)
             move_absolute(row.accel, row.decel, row.speed, row.end)
           else
             move_incremental(row.accel, row.decel, row.speed, row.end)
+          end
         elsif row.type == "PAUSE"
           pause(row.duration)
         elsif row.type == "LOOP_START"

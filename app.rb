@@ -67,7 +67,7 @@ Shoes.app(:width => 900, scroll: true) do
       # myLoopStart = LoopStart.new(args[0],args[1],@batch)
       myLoopStart = LoopStart.new(*args, @batch)
     else
-      myLoopStart = LoopStart.new("", @batch)
+      myLoopStart = LoopStart.new("1", @batch)
     end
     @rowManager.insert_row(myLoopStart)
   end
@@ -88,7 +88,7 @@ Shoes.app(:width => 900, scroll: true) do
       # myRow = Instruction.new(args[0],args[1],args[2],args[3],args[4],args[5],@batch)
       myRow = Instruction.new(*args, @batch)
     else
-      myRow = Instruction.new("", "", "", "", "", @batch)
+      myRow = Instruction.new("", "", "", "", false, @batch)
     end
     @rowManager.insert_row(myRow)
   end
@@ -146,7 +146,7 @@ Shoes.app(:width => 900, scroll: true) do
   end
 
   para ""
-  
+
   button "Save" do
     # ask_save file is built in to shoes and opens a dialogue for a save file
     save_to = ask_save_file

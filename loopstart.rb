@@ -5,9 +5,8 @@ class LoopStart < Row
 	def initialize(_iterationstext, _batch)
 		super(_batch, 0)
 		@indentType = 1
-		@iterations = _iterationstext
+		@iterations = _iterationstext.to_i
 		@type = "LOOP_START"
-		@elements = [@iterations, @pauseDuration]
 		@terminator = nil
 	end
 	attr_accessor :iterations
