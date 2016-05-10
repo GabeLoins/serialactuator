@@ -88,7 +88,7 @@ Shoes.app(:width => 900, scroll: true) do
       # myRow = Instruction.new(args[0],args[1],args[2],args[3],args[4],args[5],@batch)
       myRow = Instruction.new(*args, @batch)
     else
-      myRow = Instruction.new("", "", "", "", "", "", @batch)
+      myRow = Instruction.new("", "", "", "", "", @batch)
     end
     @rowManager.insert_row(myRow)
   end
