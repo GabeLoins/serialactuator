@@ -112,10 +112,10 @@ Shoes.app(:width => 900, scroll: true) do
     new_pause()
   end
 
-  button "Start Loop" do
-    row = new_loop_start()
+  button "Add Loop" do
+    start = new_loop_start()
     new_loop_end()
-    row.select()
+    start.select() # re-select the start of our loop
   end
 
   button "Erase" do
