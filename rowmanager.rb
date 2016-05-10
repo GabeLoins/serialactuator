@@ -8,8 +8,10 @@ class RowManager
 	end
 
 	def get_rows()
+		unless validate_rows()
+			return nil
+		end
 		for row in @rows
-			row.validate()
 			if row.type == "LOOP_START"
 				row.terminator = get_loop_pair(row)
 			end
@@ -18,6 +20,16 @@ class RowManager
 		return @rows
 	end
 	
+	def validate_rows()
+		result = true
+		for row in @rows
+			unless row.validate()
+				result = false
+			end
+		end
+		return result
+	end
+
 	def insert_row(newRow)
 	    if @rows.empty? # Add to front of instructions list
 	    	@rows.push(newRow)

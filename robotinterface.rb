@@ -9,6 +9,10 @@ class RobotInterface
     # puts "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DA#{pos} GO\n'"
   end 
 
+  def pause(duration)
+    Process.spawn "screen -S usbserial -X stuff 'TD#{duration} GO\n'"
+  end
+
     # tell the arm to move dist units from its current position
   def move_incremental(acc, dec, ve, dist)
     Process.spawn "screen -S usbserial -X stuff 'AC#{acc} DE#{dec} VE#{ve} DI#{dist} GO\n'"
@@ -42,6 +46,8 @@ def execute_commands_helper(rows)
             end
             move_absolute(row.accel, row.decel, row.speed, row.end)
           end
+        elsif row.type == "PAUSE"
+          pause(row.duration)
         elsif row.type == "LOOP_START"
           loop_start = i
           loop_end = rows.index(row.terminator)

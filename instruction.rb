@@ -12,11 +12,6 @@ class Instruction < Row
 		@decel = _deceltext
 		@incr = _incrValue
 		@type = "INSTRUCTION"
-		# @decel = 5
-		# puts @start
-		@elements = [@start, @end, @speed, @accel, @decel, @incr]
-		# @end = 5
-		# puts "#{@elements}"
 	end
 	attr_accessor :start
 	attr_accessor :end
@@ -32,7 +27,6 @@ class Instruction < Row
 	end
 
 	def drawFields(me)
-		myStart = @start
 		me = self
 		@batch.app do
 		    # _indent_flow = flow do para "", width: 70, margin: 5 end

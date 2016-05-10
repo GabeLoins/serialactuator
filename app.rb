@@ -3,6 +3,7 @@ require 'green_shoes'
 require_relative 'instruction'
 require_relative 'loopstart'
 require_relative 'LoopEnd'
+require_relative 'Pause'
 require_relative 'rowmanager'
 require_relative 'robotinterface'
 # Process.spawn opens an imaginary terminal window and then runs the command
@@ -66,9 +67,19 @@ Shoes.app(width: 900, scroll: true) do
       # myLoopStart = LoopStart.new(args[0],args[1],@batch)
       myLoopStart = LoopStart.new(*args, @batch)
     else
-      myLoopStart = LoopStart.new("", "", @batch)
+      myLoopStart = LoopStart.new("", @batch)
     end
     @rowManager.insert_row(myLoopStart)
+  end
+
+  # create a new Pause row in the gui
+  def new_pause(args = nil)
+    if !args.nil?
+      myPause = Pause.new(*args, @batch)
+    else
+      myPause = Pause.new("", @batch)
+    end
+    @rowManager.insert_row(myPause)
   end
 
   # create a new blank row in the gui
@@ -97,16 +108,19 @@ Shoes.app(width: 900, scroll: true) do
     new_row()
   end
 
+  button "Add Pause" do
+    new_pause()
+  end
+
   button "Start Loop" do
     new_loop_start()
     new_loop_end()
   end
 
   button "Go" do
-    begin
-      @robotInterface.execute_commands(@rowManager.get_rows())
-    rescue => e
-      puts e.backtrace
+    rows = @rowManager.get_rows()
+    unless rows.nil?
+      @robotInterface.execute_commands(rows)
     end
   end
   
@@ -142,6 +156,8 @@ Shoes.app(width: 900, scroll: true) do
           new_row(row)
         elsif type == "LOOP_START"
           new_loop_start(row)
+        elsif type == "PAUSE"
+          new_pause(row)
         else
           new_loop_end()
         end

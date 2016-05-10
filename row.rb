@@ -10,7 +10,6 @@ class Row
 		@radio = nil
 		@indentLevel = 0 #updated dynamically 
 		@indentType = 0 #do I change the current indent level?
-		@elements = []
 	end
 	attr_accessor :indentLevel
 	attr_accessor :indentType
@@ -19,7 +18,7 @@ class Row
 	attr_accessor :type
 
 	def validate()
-		
+		return true
 	end
 
 	def get_save_string()
@@ -45,7 +44,7 @@ class Row
 			        	para width: 60, margin: 5
 			        end
 			        _number = para "#{order}", width: 20, margin: 5, size: @FONT_SIZE
-			        para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
+			        # para " selected ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
 		    		me.radio = radio :row#; me.selected = true
 		    			 # me.selected = true
 		    		# end
