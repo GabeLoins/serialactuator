@@ -8,6 +8,13 @@ class RowManager
 	end
 
 	def get_rows()
+		for row in @rows
+			row.validate()
+			if row.type == "LOOP_START"
+				row.terminator = get_loop_pair(row)
+			end
+		end
+		draw()
 		return @rows
 	end
 	

@@ -18,6 +18,10 @@ class Row
 	attr_accessor :order
 	attr_accessor :type
 
+	def validate()
+		
+	end
+
 	def get_save_string()
 		save_string = ""
 		save_string << "#{@type}"
