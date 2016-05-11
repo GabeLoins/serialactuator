@@ -7,9 +7,9 @@ class Instruction < Row
 		puts _incrValue
 		# @start = _starttext
 		@end = _endtext.to_i
-		@speed = _speedtext.to_i
-		@accel = _acceltext.to_i
-		@decel = _deceltext.to_i
+		@speed = _speedtext.to_f
+		@accel = _acceltext.to_f
+		@decel = _deceltext.to_f
 		@incr = _incrValue
 		@type = "INSTRUCTION"
 	end
@@ -47,16 +47,16 @@ class Instruction < Row
 		   	else
 		   		para " Destination ", width: 85, margin: 5, size: @FONT_SIZE
 		   	end
-		    _end = edit_line :width => @INPUT_WIDTH do |i| me.end = i.text.to_i end
+		    _end = edit_line :width => @INPUT_WIDTH do |i| me.end = i.text.to_f end
 		    _end.text = me.end.to_s
 		    para " Speed ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
-		    _speed = edit_line :width => @INPUT_WIDTH do |i| me.speed = i.text.to_i end
+		    _speed = edit_line :width => @INPUT_WIDTH do |i| me.speed = i.text.to_f end
 		    _speed.text = me.speed.to_s
 		    para " Accel ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
-		    _accel = edit_line :width => @INPUT_WIDTH do |i| me.accel = i.text.to_i end
+		    _accel = edit_line :width => @INPUT_WIDTH do |i| me.accel = i.text.to_f end
 		    _accel.text = me.accel.to_s
 		    para " Decel ", width: @LABEL_WIDTH, margin: 5, size: @FONT_SIZE
-		    _decel = edit_line :width => @INPUT_WIDTH do |i| me.decel = i.text.to_i end
+		    _decel = edit_line :width => @INPUT_WIDTH do |i| me.decel = i.text.to_f end
 		    _decel.text = me.decel.to_s
 		    para " incremental ", width: 90, margin: 5, size: @FONT_SIZE
 		    _incr = check :width => @INPUT_WIDTH do |i| me.incr = i.checked? end
