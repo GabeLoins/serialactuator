@@ -1,0 +1,36 @@
+Anvilator Software New Features Documentation (5/10/16)
+
+-----------------------------
+New Features:
+
+Incremental Movements (A)
+
+Instruction Insertion (B)
+
+New Types of Instructions (C)
+	Pause (1)
+	Loops (2)
+-----------------------------
+
+Incremental Movements (A)
+	
+	By default, all move commands are now by default absolute; The Robot will go directly to the position specified by the Destination field.  To make the robot move by an amount relative to its current position, check the box labeled "incremental" at the right of the command.
+
+
+Instruction Insertion (B)
+
+	Instructions will now be inserted after the currently selected instruction. To select an instruction, simply click the circular radio button all the way to its left. Newly added Instructions are selected automatically.
+
+
+New Instructions (C)
+
+Pause (1)
+
+	Adding a pause command will Pause the robot for the number of seconds in the Duration field
+
+Loops (2)
+
+	When you click the Add Loop button, a loop start row will apear with a loop end row below it.
+	These rows are linked, so deleting either of them will also delete the other one.  Loops and their contents will apear indented, so you can more easily tell what is contained in them.
+
+	A Loop will repeat any commands between its start and end X times, where X is the value in Iterations field.  Loops can be nested inside of other loops, and the inner loop will fully perform its iterations for every cycle of the outer loop.
